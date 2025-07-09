@@ -1,0 +1,7 @@
+.env
+venv_pagepal/
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/

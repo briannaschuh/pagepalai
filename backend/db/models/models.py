@@ -5,10 +5,10 @@ from datetime import datetime
 
 from backend.db.base import Base
 
-# -------------------------
-# Book Table
-# -------------------------
 class Book(Base):
+    """
+    Table for storing books
+    """
     __tablename__ = "books"
 
     # columns
@@ -17,17 +17,20 @@ class Book(Base):
     author = Column(String)
     language = Column(String)
     source = Column(String)
+    language_level = Column(String)
     description = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # relationships
     chunks = relationship("Chunk", back_populates="book")
+    
+    def __repr__(self):
+        return f"<Book(id={self.id}, title={self.title}, author={self.author})>"
 
-
-# -------------------------
-# Chunk Table
-# -------------------------
 class Chunk(Base):
+    """
+    Table for storing chunks 
+    """
     __tablename__ = "chunks"
     
     # columns
@@ -42,12 +45,14 @@ class Chunk(Base):
     # relationships
     book = relationship("Book", back_populates="chunks")
     ai_outputs = relationship("AIOutput", back_populates="chunk")
+    
+    def __repr__(self):
+        return f"<Chunk(id={self.id}, book_id={self.book_id}, page_number={self.page_number})>"
 
-
-# -------------------------
-# AI Output Table
-# -------------------------
 class AIOutput(Base):
+    """
+    Table for storing AI-generated content
+    """
     __tablename__ = "aioutput"
 
     # columns
@@ -59,3 +64,6 @@ class AIOutput(Base):
 
     # relationships
     chunk = relationship("Chunk", back_populates="ai_outputs")
+    
+    def __repr__(self):
+        return f"<AIOutput(id={self.id}, chunk_id={self.chunk_id}, type={self.type})>"

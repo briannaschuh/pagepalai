@@ -7,3 +7,4 @@ tenacity
 sqlalchemy
 psycopg2-binary
 pgvector
+pytest

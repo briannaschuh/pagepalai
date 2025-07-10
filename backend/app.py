@@ -21,7 +21,10 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(429, _rate_limit_exceeded_handler) # set a limiter
 
-logging.basicConfig(level=logging.INFO) # configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s"
+) # configure logging
 logger = logging.getLogger(__name__)
 
 origins = ["http://localhost:3000", "https://pagepal.ai"] # allows for only my frontend to hit the backend

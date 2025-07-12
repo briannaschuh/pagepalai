@@ -7,12 +7,18 @@ from sqlalchemy.orm import Session
 
 from backend.config import DATABASE_URL
 from backend.utils.logging_utils import method_name
-from backend.db.init_db import engine  # Use the one you've already set up elsewhere
+from backend.db.init_db import engine 
 
 log = logging.getLogger(__name__)
 
 @contextmanager
 def managed_connection():
+    """
+    Context manager that opens and closes a SQLAlchemy database session.
+    
+    Yields:
+        Session: An active SQLAlchemy session bound to the engine.
+    """
     db = Session(bind=engine)
     try:
         yield db
@@ -20,9 +26,21 @@ def managed_connection():
         db.close()
 
 def insert(table_name: str, columns_list: list[str], values_list: list):
+    """
+    Inserts a new row into the given table.
+
+    Args:
+        table_name (str): The name of the table.
+        columns_list (list[str]): List of column names.
+        values_list (list): List of values corresponding to each column.
+
+    Returns:
+        int: Number of rows inserted (should be 1).
+    """
     start_time = time.time()
     request_id = str(uuid.uuid4())
-    log.info(f"[{request_id}] Inserting values into {table_name}: {values_list}")
+    if table_name != "chunks":
+        log.info(f"[{request_id}] Inserting values into {table_name}: {values_list}")
 
     with managed_connection() as db:
         columns = ', '.join(columns_list)
@@ -34,10 +52,22 @@ def insert(table_name: str, columns_list: list[str], values_list: list):
         db.commit()
 
     exec_time = round(time.time() - start_time, 4)
-    log.info(f"[{request_id}] {method_name()} completed in {exec_time}s")
+    if table_name != "chunks":
+        log.info(f"[{request_id}] {method_name()} completed in {exec_time}s")
     return result.rowcount
 
 def select(table_name: str, columns: str = "*", condition: dict = None):
+    """
+    Queries a table and returns matching records as a list of dicts.
+
+    Args:
+        table_name (str): The name of the table.
+        columns (str, optional): Columns to return (default is "*").
+        condition (dict, optional): Optional WHERE clause as key-value pairs.
+
+    Returns:
+        list[dict]: List of matching records as dictionaries.
+    """
     start_time = time.time()
     request_id = str(uuid.uuid4())
     log.info(f"[{request_id}] Selecting {columns} from {table_name} where {condition}")
@@ -63,14 +93,15 @@ def select(table_name: str, columns: str = "*", condition: dict = None):
 
 def update(table_name: str, data: dict, update_condition: dict):
     """
+    Updates rows in a table matching a given condition.
 
     Args:
-        table_name (str): the name of the table
-        data (dict): data to be included in the update
-        update_condition (dict): condition of what to update
+        table_name (str): The name of the table.
+        data (dict): Column-value pairs to update.
+        update_condition (dict): WHERE condition for the update.
 
     Returns:
-        int: number of rows impacted
+        int: Number of rows updated.
     """
     start_time = time.time()
     request_id = str(uuid.uuid4())
@@ -98,11 +129,14 @@ def update(table_name: str, data: dict, update_condition: dict):
 
 def delete(table_name: str, condition: dict):
     """
-    Delete records from a table.
-    
+    Deletes records from a table matching a condition.
+
     Args:
-        table_name (str): the name of the table
-        condition (dict): condition of what to delete
+        table_name (str): The name of the table.
+        condition (dict): WHERE condition for the delete.
+
+    Returns:
+        int: Number of rows deleted.
     """
     start_time = time.time()
     request_id = str(uuid.uuid4())
@@ -126,11 +160,14 @@ def delete(table_name: str, condition: dict):
 
 def exists(table_name: str, condition: dict):
     """
-    Check if any record exists matching the condition.
-    
+    Checks whether any records exist that match a given condition.
+
     Args:
-        table_name (str): the name of the table
-        condition (dict): condition of what to check
+        table_name (str): The name of the table.
+        condition (dict): WHERE condition to match against.
+
+    Returns:
+        bool: True if at least one record matches, False otherwise.
     """
     start_time = time.time()
     request_id = str(uuid.uuid4())

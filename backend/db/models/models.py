@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, func, UniqueConstraint
 from sqlalchemy.orm import relationship, declarative_base
 from pgvector.sqlalchemy import Vector
 from datetime import datetime
@@ -13,13 +13,14 @@ class Book(Base):
 
     # columns
     id = Column(Integer, primary_key=True, index=True)
+    gutenberg_id = Column(Integer, unique=True, index=True)
     title = Column(String, nullable=False)
     author = Column(String)
     language = Column(String)
     source = Column(String)
     language_level = Column(String)
     description = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, server_default=func.now())
 
     # relationships
     chunks = relationship("Chunk", back_populates="book")
@@ -40,11 +41,15 @@ class Chunk(Base):
     text = Column(Text, nullable=False)
     tokens = Column(Integer)
     embedding = Column(Vector(1536))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, server_default=func.now())
 
     # relationships
     book = relationship("Book", back_populates="chunks")
     ai_outputs = relationship("AIOutput", back_populates="chunk")
+    
+    __table_args__ = (
+        UniqueConstraint("book_id", "page_number", name="uq_book_page"),
+    )
     
     def __repr__(self):
         return f"<Chunk(id={self.id}, book_id={self.book_id}, page_number={self.page_number})>"
@@ -60,7 +65,7 @@ class AIOutput(Base):
     chunk_id = Column(Integer, ForeignKey("chunks.id"), nullable=False)
     type = Column(String, nullable=False)  
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, server_default=func.now())
 
     # relationships
     chunk = relationship("Chunk", back_populates="ai_outputs")

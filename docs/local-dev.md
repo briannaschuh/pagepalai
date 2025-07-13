@@ -3,6 +3,15 @@
 
 Notes for myself on maintaining the project locally
 
+## Running the backend
+
+### Testing API endpoints
+Run the following command to get the local API docs
+```bash
+PYTHONPATH=. uvicorn backend.app:app --reload
+```
+Afterwards, visit `http://127.0.0.1:8000/docs` or `http://127.0.0.1:8000/redoc`
+
 ## Running Tests
 
 ### Using `pytest`
@@ -27,7 +36,7 @@ PYTHONPATH=. pytest tests/test_chunks_db.py -k test_chunks_table_crud
 
 ## DB Setup & Usage
 
-## Region
+### Region
 
 In the `.env` file, there is a boolean variable used to decide which DB should be used.
 ```bash

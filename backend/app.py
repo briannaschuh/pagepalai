@@ -13,8 +13,25 @@ from backend.utils.openai_helpers import get_explanation
 from backend.db.init_db import create_tables
 from backend.config import PAGEPAL_API_KEY
 from backend.utils.logging_config import setup_logger
+from backend.utils.auth_utils import verify_api_key
 
-app = FastAPI()
+from backend.routers import books
+
+app = FastAPI(
+    title="LLM Reading Tutor API",
+    version="1.0.0",
+    openapi_tags=[
+        {
+            "name": "Books",
+            "description": "Operations related to book metadata and content chunks."
+        },
+        {
+            "name": "AI",
+            "description": "Endpoints powered by AI, like explanations and summaries."
+        }
+    ]
+)
+
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(429, _rate_limit_exceeded_handler) # set a limiter
@@ -30,6 +47,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(books.router)
+
 @app.on_event("startup")
 def startup():
     """
@@ -39,22 +58,12 @@ def startup():
     """
     create_tables()
 
-# function that verifies the API key to hit my backend
-def verify_api_key(x_api_key: str = Header(...)):
-    """
-    Verifies the API key provided in the request headers.
-
-    Args:
-        x_api_key (str): The API key passed in the request header.
-
-    Raises:
-        HTTPException: If the API key is invalid.
-    """
-    if x_api_key != PAGEPAL_API_KEY:
-        raise HTTPException(status_code=403, detail="Forbidden")
-
 # testing purposes
-@app.get("/secure", dependencies=[Depends(verify_api_key)])
+@app.get("/secure", 
+         summary="API key verification",
+         description="Endpoint used to ensure that API key authentication is working as expected",
+         tags=["Security"],
+         dependencies=[Depends(verify_api_key)])
 async def secure_endpoint():
     """
     A protected test endpoint to verify API key authentication.
@@ -65,7 +74,11 @@ async def secure_endpoint():
     return {"message": "This is protected!"}
 
 # endpoint to retrieve explanation of a text    
-@app.post("/explain", dependencies=[Depends(verify_api_key)])
+@app.post("/explain", 
+          summary="Explanation of text",
+          description="Returns an explanation of the text provided",
+          tags=["AI"],
+          dependencies=[Depends(verify_api_key)])
 @limiter.limit("3/minute")
 async def explain(request: Request, payload: ExplainationRequest):
     """

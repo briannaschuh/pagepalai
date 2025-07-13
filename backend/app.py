@@ -38,7 +38,7 @@ app.add_exception_handler(429, _rate_limit_exceeded_handler) # set a limiter
 
 logger = setup_logger(__name__)
 
-origins = ["http://localhost:3000", "https://pagepal.ai"] # allows for only my frontend to hit the backend
+origins = ["http://localhost:3000", "https://pagepal.ai", "http://localhost:5173"] # allows for only my frontend to hit the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

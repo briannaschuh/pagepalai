@@ -58,7 +58,7 @@ create_tables()
 - `delete(table_name, condition=dict)`
 - `exists(table_name, condition=dict)`
 
-## Logging
+## Logging in the Backend
 
 ### Global logging is configured in `app.py`:
 
@@ -77,3 +77,15 @@ logging.basicConfig(
 import logging
 log = logging.getLogger(__name__)
 ```
+
+## Frontend
+To run the frontend locally, run the following in the command line
+```bash
+cd frontend
+npm run dev
+```
+and go to the URL `http://localhost:5173`
+
+## Deployment Changes
+
+I will have to update `fetch` calls in the React containers with the URL of the site sometime before deployment. I can do this by storing the backend URL in the `.env` file so I can easily switch between dev and prod.  

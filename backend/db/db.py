@@ -184,3 +184,30 @@ def exists(table_name: str, condition: dict):
     exec_time = round(time.time() - start_time, 4)
     log.info(f"[{request_id}] {method_name()} completed in {exec_time}s")
     return bool(result)
+
+def raw(query_str: str, params: tuple = ()):
+    """
+    Runs a raw SQL query and returns the results as a list of dicts.
+
+    Args:
+        query_str (str): The raw SQL query string.
+        params (tuple): Query parameters.
+
+    Returns:
+        list[dict]: Query results as list of dictionaries.
+    """
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+
+    log.info(f"[{request_id}] Executing raw SQL: {query_str} with params {params}")
+
+    with managed_connection() as db:
+        query = text(query_str)
+        result = db.execute(query, params)
+        rows = result.fetchall()
+        columns = result.keys()
+        records = [dict(zip(columns, row)) for row in rows]
+
+    exec_time = round(time.time() - start_time, 4)
+    log.info(f"[{request_id}] raw() completed in {exec_time}s")
+    return records

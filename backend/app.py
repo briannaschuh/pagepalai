@@ -15,7 +15,7 @@ from backend.config import PAGEPAL_API_KEY
 from backend.utils.logging_config import setup_logger
 from backend.utils.auth_utils import verify_api_key
 
-from backend.routers import books
+from backend.routers import books, chunks
 
 app = FastAPI(
     title="LLM Reading Tutor API",
@@ -24,6 +24,10 @@ app = FastAPI(
         {
             "name": "Books",
             "description": "Operations related to book metadata and content chunks."
+        },
+        {
+            "name": "Chunks",
+            "description": "Operations related to managing chunks."
         },
         {
             "name": "AI",
@@ -48,6 +52,7 @@ app.add_middleware(
 )
 
 app.include_router(books.router)
+app.include_router(chunks.router)
 
 @app.on_event("startup")
 def startup():

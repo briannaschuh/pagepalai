@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import "../styles/BookViewer.css"; 
 
 const BookViewer = () => {
   const { gutenberg_id } = useParams();
@@ -10,6 +11,7 @@ const BookViewer = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const storedBook = JSON.parse(localStorage.getItem("selectedBook") || "{}");
 
   useEffect(() => {
     const fetchChunk = async () => {
@@ -46,20 +48,30 @@ const BookViewer = () => {
   const prevPage = () => setPage((p) => Math.max(1, p - 1));
 
   return (
-    <div>
-      <button onClick={() => navigate("/reader")}>🔙 Back to book list</button>
-      <h2>Reading Book #{gutenberg_id || "???"}</h2>
+      <div className="book-viewer-container">
+        <button className="back-button" onClick={() => {
+          localStorage.removeItem("selectedBook");
+          navigate("/reader");
+        }}>
+          Back to book list
+        </button>
+
+        <h2 className="book-title">
+          {storedBook.title
+            ? `${storedBook.title} by ${storedBook.author}`
+            : `Reading Book #${gutenberg_id || "???"}`}
+        </h2>
 
       {error ? (
         <p style={{ color: "red" }}>{error}</p>
       ) : (
         <>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{chunk}</pre>
-          <div style={{ marginTop: "1rem" }}>
+          <pre className="book-text">{chunk}</pre>
+          <div className="pagination-controls">
             <button onClick={prevPage} disabled={page === 1}>
               Previous
             </button>
-            <span style={{ margin: "0 1rem" }}>
+            <span>
               Page {page} {totalPages ? `of ${totalPages}` : ""}
             </span>
             <button

@@ -3,11 +3,13 @@ import LanguageSelector from "../components/LanguageSelector";
 import LevelSelector from "../components/LevelSelector";
 import BookList from "../components/BookList";
 import "../styles/Reader.css";
+import { useNavigate } from "react-router-dom";
 
 const Reader = () => {
   const [language, setLanguage] = useState("");
   const [level, setLevel] = useState("");
   const [books, setBooks] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (language && level) {
@@ -40,14 +42,19 @@ const Reader = () => {
         });
     }
   }, [language, level]);
-  
+
   return (
     <div className="reader-container">
-      <h1>Select a Book</h1>
-      <LanguageSelector language={language} setLanguage={setLanguage} />
-      {language && (
-        <LevelSelector language={language} level={level} setLevel={setLevel} />
-      )}
+      <button className="back-button" onClick={() => navigate("/")}>Back to Home</button>
+      <h1 className="reader-heading">Select a Book</h1>
+
+      <div className="selectors-container">
+        <LanguageSelector language={language} setLanguage={setLanguage} />
+        {language && (
+          <LevelSelector language={language} level={level} setLevel={setLevel} />
+        )}
+      </div>
+
       {language && level && <BookList books={books} />}
     </div>
   );

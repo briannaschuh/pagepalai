@@ -6,6 +6,7 @@ from backend.db.models.book import Book
 from backend.db.models.chunk import Chunk
 from backend.db.models.ai_output import AIOutput
 from backend.db.models.language_level import LanguageLevel
+from backend.db.models.language_mapping import Language
 
 engine = create_engine(DATABASE_URL)
 

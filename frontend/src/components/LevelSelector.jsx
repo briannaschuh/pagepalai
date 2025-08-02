@@ -4,6 +4,13 @@ const LevelSelector = ({ level, setLevel, language }) => {
   const [levels, setLevels] = useState([]);
 
   useEffect(() => {
+    console.log("🔁 useEffect triggered in LevelSelector");
+    console.log("🧠 language passed to LevelSelector:", language);
+  }, [language]);
+  
+  
+  useEffect(() => {
+    console.log("Language changed in LevelSelector:", language);
     const fetchLevels = async () => {
       if (!language) return; // no call if language isn't selected
 

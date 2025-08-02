@@ -9,6 +9,15 @@ def get_all_books():
     """
     return db.select("books", columns="id, title, author, language, language_level")
 
+def get_language_mappings():
+    """
+    Returns list of all available language codes and labels.
+
+    Returns:
+        list[dict]: List of {code, name} pairs.
+    """
+    return db.select("language_mapping", columns="code, name")
+
 def get_languages():
     """
     Retrieves distinct languages from the language_levels table.

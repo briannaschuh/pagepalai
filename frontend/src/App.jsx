@@ -9,6 +9,11 @@ const App = () => {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    console.log("App - language:", language);
+    console.log("App - level:", level);
+  }, [language, level]);
+
   // fetch books whenever language or level changes
   useEffect(() => {
     const fetchBooks = async () => {

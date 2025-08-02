@@ -5,14 +5,15 @@ const LanguageSelector = ({ language, setLanguage }) => {
 
   useEffect(() => {
     const fetchLanguages = async () => {
-
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/languages`, {
-          headers: { "x-api-key": import.meta.env.VITE_API_KEY },
+          headers: {
+            "x-api-key": import.meta.env.VITE_API_KEY,
+          },
         });
-  
+
         if (!res.ok) throw new Error("Failed to fetch languages");
-  
+
         const data = await res.json();
         console.log("Fetched languages:", data);
         setLanguages(data);
@@ -21,25 +22,20 @@ const LanguageSelector = ({ language, setLanguage }) => {
         setLanguages([]);
       }
     };
-  
-    fetchLanguages(); // fetch only once on initial mount
+
+    fetchLanguages();
   }, []);
-  
-  
 
   return (
     <div>
       <label>Select a Language:</label>
       <select value={language} onChange={(e) => setLanguage(e.target.value)}>
         <option value="">-- Choose --</option>
-        {languages.map((langObj) => {
-          const lang = langObj.language;
-          return (
-           <option key={lang} value={lang}>
-            {lang === "es" ? "Spanish" : lang === "pt" ? "Portuguese" : lang}
-            </option>
-          );
-        })}
+        {languages.map((langObj) => (
+          <option key={langObj.code} value={langObj.code}>
+            {langObj.name}
+          </option>
+        ))}
       </select>
     </div>
   );

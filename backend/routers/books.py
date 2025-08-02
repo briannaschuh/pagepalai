@@ -10,7 +10,8 @@ from backend.utils.books_utils import (
     get_all_books, 
     get_languages, 
     get_levels_for_language, 
-    get_books_by_language_and_level
+    get_books_by_language_and_level,
+    get_language_mappings
 )
 
 router = APIRouter()
@@ -24,14 +25,14 @@ router = APIRouter()
 def list_books():
     return get_all_books()
 
-@router.get("/languages", 
-            summary="List available languages",
-            description="Returns a list of languages supported by the platform",
+@router.get("/languages",
+            summary="List language mappings",
+            description="Returns a list of language codes and display names",
             tags=["Books"],
             dependencies=[Depends(verify_api_key)]
             )
-def list_languages():
-    return get_languages()
+def list_language_mappings():
+    return get_language_mappings()
 
 @router.get("/levels/{language}", 
             summary="List CEFR levels for a given language",

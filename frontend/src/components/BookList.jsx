@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const BookList = ({ books }) => {
+  const navigate = useNavigate();
+
   return (
     <div>
       <h2>Books Available:</h2>
@@ -9,7 +12,11 @@ const BookList = ({ books }) => {
       ) : (
         <ul>
           {books.map((book) => (
-            <li key={book.id}>
+            <li
+              key={book.id}
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate(`/reader/${book.gutenberg_id}`)}
+            >
               <strong>{book.title}</strong> by {book.author}
             </li>
           ))}

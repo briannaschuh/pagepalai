@@ -32,7 +32,7 @@ const Reader = () => {
       <h1>Select a Book</h1>
       <LanguageSelector language={language} setLanguage={setLanguage} />
       {language && (
-        <LevelSelector level={level} setLevel={setLevel} />
+        <LevelSelector language={language} level={level} setLevel={setLevel} />
       )}
       {language && level && <BookList books={books} />}
     </div>

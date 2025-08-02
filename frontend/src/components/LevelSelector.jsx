@@ -4,8 +4,8 @@ const LevelSelector = ({ level, setLevel, language }) => {
   const [levels, setLevels] = useState([]);
 
   useEffect(() => {
-    console.log("🔁 useEffect triggered in LevelSelector");
-    console.log("🧠 language passed to LevelSelector:", language);
+    console.log("useEffect triggered in LevelSelector");
+    console.log("language passed to LevelSelector:", language);
   }, [language]);
   
   

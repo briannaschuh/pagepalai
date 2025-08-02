@@ -11,7 +11,7 @@ const Reader = () => {
 
   useEffect(() => {
     if (language && level) {
-      fetch("http://localhost:8000/books", {
+      fetch(`http://localhost:8000/books/${language}/${level}`, {
         headers: {
           "x-api-key": import.meta.env.VITE_API_KEY
         }

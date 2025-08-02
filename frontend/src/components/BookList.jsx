@@ -15,7 +15,10 @@ const BookList = ({ books }) => {
             <li
               key={book.id}
               style={{ cursor: "pointer" }}
-              onClick={() => navigate(`/reader/${book.gutenberg_id}`)}
+              onClick={() => {
+                console.log("Book object being clicked:", book); 
+                navigate(`/reader/${book.gutenberg_id}`);    
+              }}
             >
               <strong>{book.title}</strong> by {book.author}
             </li>

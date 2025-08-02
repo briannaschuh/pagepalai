@@ -50,7 +50,7 @@ def get_books_by_language_and_level(language: str, level: str):
     Returns:
         list[dict]: List of matching books.
     """
-    return db.select("books", columns="id, title, author, language, language_level", condition={
+    return db.select("books", columns="id, gutenberg_id, title, author, language, language_level", condition={
         "language": language,
         "language_level": level
     })

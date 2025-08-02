@@ -10,23 +10,37 @@ const Reader = () => {
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
-    // fetch only when both selected
     if (language && level) {
       fetch("http://localhost:8000/books", {
-        headers: { "x-api-key": "your-api-key-here" } // replace if protected
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY
+        }
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Failed to fetch books: ${res.status}`);
+          }
+          return res.json();
+        })
         .then((data) => {
+          if (!Array.isArray(data)) {
+            console.error("Unexpected data format:", data);
+            return;
+          }
           const filtered = data.filter(
             (book) =>
               book.language.toLowerCase() === language.toLowerCase() &&
               book.language_level.toUpperCase() === level.toUpperCase()
           );
           setBooks(filtered);
+        })
+        .catch((err) => {
+          console.error("Fetch error:", err);
+          setBooks([]);
         });
     }
   }, [language, level]);
-
+  
   return (
     <div className="reader-container">
       <h1>Select a Book</h1>

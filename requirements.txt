@@ -9,3 +9,4 @@ psycopg2-binary
 pgvector
 pytest
 requests
+jinja2

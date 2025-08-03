@@ -86,24 +86,16 @@ async def secure_endpoint():
           dependencies=[Depends(verify_api_key)])
 @limiter.limit("3/minute")
 async def explain(request: Request, payload: ExplainationRequest):
-    """
-    Generates a simplified explanation of a given text for language learners.
-
-    This endpoint calls the OpenAI API to tailor explanations to the user's language level.
-    Rate limited to 3 requests per minute.
-
-    Args:
-        request (Request): The FastAPI request object (unused, but available for logging).
-        payload (ExplainationRequest): Request body containing `text` and `language_level`.
-
-    Returns:
-        dict: A JSON response with the explanation text.
-
-    Raises:
-        HTTPException: If the OpenAI API call fails.
-    """
     try:
-        explanation = await get_explanation(payload.text, payload.language_level)
+        explanation = await get_explanation(
+            text=payload.text,
+            level=payload.language_level,
+            context_before=payload.context_before,
+            context_after=payload.context_after,
+            book_title=payload.book_title,
+            book_author=payload.book_author,
+            book_language=payload.book_language,
+        )
         return {"explanation": explanation}
     except Exception as e:
         logger.error(f"OpenAI error: {e}")

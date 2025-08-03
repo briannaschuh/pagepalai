@@ -36,7 +36,7 @@ async def get_explanation(text: str, level: str) -> str:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text},
         ],
-        temperature=0.7,
+        temperature=0,
     )
 
     return response.choices[0].message.content.strip()

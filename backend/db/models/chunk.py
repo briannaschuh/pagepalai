@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, func, UniqueConstraint
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
+from sqlalchemy.dialects.postgresql import JSONB 
 from backend.db.base import Base
 
 class Chunk(Base):
@@ -12,6 +13,7 @@ class Chunk(Base):
     text = Column(Text, nullable=False)
     tokens = Column(Integer)
     embedding = Column(Vector(1536))
+    chunk_metadata = Column("metadata", JSONB)
     created_at = Column(DateTime, server_default=func.now())
 
     book = relationship("Book", back_populates="chunks")

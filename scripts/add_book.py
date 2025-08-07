@@ -195,9 +195,10 @@ def insert_book_and_chunks(book_info: dict, chunks: list[str], dry_run: bool = F
 
             embedding = get_embedding(chunk_text)
             try:
+                metadata = {"book_id": book_id}
                 db.insert("chunks",
-                          ["book_id", "page_number", "text", "embedding"],
-                          [book_id, i, chunk_text, embedding])
+                        ["book_id", "page_number", "text", "embedding", "metadata"],
+                        [book_id, i, chunk_text, embedding, metadata])
             except IntegrityError:
                 logger.warning(f"Duplicate chunk skipped: book_id={book_id}, page_number={i}")
                 continue
@@ -219,9 +220,10 @@ def insert_book_and_chunks(book_info: dict, chunks: list[str], dry_run: bool = F
         for i, chunk_text in failed_chunks:
             try:
                 embedding = get_embedding(chunk_text)
+                metadata = {"book_id": book_id}
                 db.insert("chunks",
-                          ["book_id", "page_number", "text", "embedding"],
-                          [book_id, i, chunk_text, embedding])
+                        ["book_id", "page_number", "text", "embedding", "metadata"],
+                        [book_id, i, chunk_text, embedding, metadata])
             except Exception as e:
                 logger.error(f"Retry {attempt} failed for chunk {i}: {e}")
                 new_failed.append((i, chunk_text))

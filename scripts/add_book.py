@@ -128,7 +128,7 @@ def clean_text(raw_text: str) -> str:
     elif end:
         return raw_text[:end.start()].strip()
     else:
-        print("⚠️ No START/END markers found in the text.")
+        print("No START/END markers found in the text.")
         return raw_text.strip()
 
 def split_into_chunks(cleaned: str, max_words=CHUNK_SIZE):
@@ -173,7 +173,7 @@ def insert_book_and_chunks(book_info: dict, chunks: list[str], dry_run: bool = F
     """
     existing = db.select("books", "*", {"gutenberg_id": book_info["gutenberg_id"]})
     if existing:
-        print(f"⚠️ Book with gutenberg_id={book_info['gutenberg_id']} already exists. Skipping insert.")
+        print(f"Book with gutenberg_id={book_info['gutenberg_id']} already exists. Skipping insert.")
         logger.warning(f"Book {book_info['gutenberg_id']} already exists")
         return
 

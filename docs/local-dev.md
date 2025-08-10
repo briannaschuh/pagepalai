@@ -88,4 +88,10 @@ and go to the URL `http://localhost:5173`
 
 ## Deployment Changes
 
-I will have to update `fetch` calls in the React containers with the URL of the site sometime before deployment. I can do this by storing the backend URL in the `.env` file so I can easily switch between dev and prod.  
+I will have to update `fetch` calls in the React containers with the URL of the site sometime before deployment. I can do this by storing the backend URL in the `.env` file so I can easily switch between dev and prod. 
+
+## Misc.
+
+I have to make sure I run the script to add meta data to my current books.
+
+There is a lot of data I need to insert into my db, I'll probably have to write a SQL script for this at some point to initialize the dbs (langauges, chapter patterns, spaCy models)

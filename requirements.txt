@@ -10,4 +10,6 @@ pgvector
 pytest
 requests
 jinja2
-llamaindex
+llama-index
+alembic
+tqdm

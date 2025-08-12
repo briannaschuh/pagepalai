@@ -10,7 +10,6 @@ from fastapi.responses import JSONResponse
 
 from backend.schemas.validate import ExplainationRequest
 from backend.utils.openai_helpers import get_explanation
-from backend.db.init_db import create_tables
 from backend.config import PAGEPAL_API_KEY
 from backend.utils.logging_config import setup_logger
 from backend.utils.auth_utils import verify_api_key
@@ -31,7 +30,7 @@ app = FastAPI(
         },
         {
             "name": "AI",
-            "description": "Endpoints powered by AI, like explanations and summaries."
+            "description": "Endpoints that use AI, like explanations and summaries."
         }
     ]
 )
@@ -53,15 +52,6 @@ app.add_middleware(
 
 app.include_router(books.router)
 app.include_router(chunks.router)
-
-@app.on_event("startup")
-def startup():
-    """
-    Runs on application startup.
-
-    Creates database tables if they don't already exist.
-    """
-    create_tables()
 
 # testing purposes
 @app.get("/secure", 

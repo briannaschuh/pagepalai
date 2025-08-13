@@ -8,6 +8,8 @@ from openai import OpenAI
 from tqdm import tqdm
 from sqlalchemy.exc import IntegrityError
 import logging
+import json
+from psycopg2.extras import Json
 
 from backend.db import db
 from backend import config
@@ -72,7 +74,7 @@ def fetch_metadata_from_gutendex(book_id: int) -> dict:
             text_url = fallback_url
             encoding = "utf-8"
         else:
-            raise Exception(f"No plain text format found for thhe book ID {book_id}")
+            raise Exception(f"No plain text format found for the book ID {book_id}")
 
     return {
         "title": title,
@@ -171,6 +173,11 @@ def insert_book_and_chunks(book_info: dict, chunks: list[str], dry_run: bool = F
         chunks (list[str]): List of chunks
         dry_run (bool, optional): If dry_run, the insertion won't actually happen
     """
+    if not db.exists("language_levels", {"language": book_info["language"], "level": book_info["level"]}):
+        raise ValueError(
+            f"language_levels missing pair ({book_info['language']}, {book_info['level']}). "
+            "Seed or insert it first (e.g., scripts/seed_reference_data.py)."
+        )
     existing = db.select("books", "*", {"gutenberg_id": book_info["gutenberg_id"]})
     if existing:
         print(f"Book with gutenberg_id={book_info['gutenberg_id']} already exists. Skipping insert.")
@@ -197,8 +204,8 @@ def insert_book_and_chunks(book_info: dict, chunks: list[str], dry_run: bool = F
             try:
                 metadata = {"book_id": book_id}
                 db.insert("chunks",
-                        ["book_id", "page_number", "text", "embedding", "metadata"],
-                        [book_id, i, chunk_text, embedding, metadata])
+                    ["book_id", "page_number", "text", "embedding", "metadata"],
+                    [book_id, i, chunk_text, embedding, Json(metadata)])
             except IntegrityError:
                 logger.warning(f"Duplicate chunk skipped: book_id={book_id}, page_number={i}")
                 continue
@@ -222,8 +229,8 @@ def insert_book_and_chunks(book_info: dict, chunks: list[str], dry_run: bool = F
                 embedding = get_embedding(chunk_text)
                 metadata = {"book_id": book_id}
                 db.insert("chunks",
-                        ["book_id", "page_number", "text", "embedding", "metadata"],
-                        [book_id, i, chunk_text, embedding, metadata])
+                    ["book_id", "page_number", "text", "embedding", "metadata"],
+                    [book_id, i, chunk_text, embedding, Json(metadata)])
             except Exception as e:
                 logger.error(f"Retry {attempt} failed for chunk {i}: {e}")
                 new_failed.append((i, chunk_text))
@@ -240,6 +247,7 @@ def main():
     parser = argparse.ArgumentParser(description="Add a Project Gutenberg book via Gutendex")
     parser.add_argument("--id", type=int, required=True, help="Gutenberg book ID")
     parser.add_argument("--level", type=str, required=True, help="Language level (e.g. A1, A2)")
+    parser.add_argument("--language", type=str, choices=["es", "en", "pt"], help="Override language code in Gutenberg")
     parser.add_argument("--dry-run", action="store_true", help="Run script without inserting into database")
     args = parser.parse_args()
     
@@ -249,12 +257,13 @@ def main():
         log_file=f"logs/log_book_{args.id}.log"
     )
 
-
     print(f"Fetching metadata for book ID {args.id}...")
     metadata = fetch_metadata_from_gutendex(args.id)
 
+    chosen_language = args.language if args.language else metadata["language"] # if i want to override the language
+
     print(f"{metadata['title']} by {metadata['author']}")
-    print(f"Language: {metadata['language']}")
+    print(f"Gutendex language: {metadata['language']}  |  Using: {chosen_language}")
     print(f"Downloading from: {metadata['text_url']}")
     raw = download_text(metadata["text_url"], metadata["encoding"])
 
@@ -275,12 +284,13 @@ def main():
         "gutenberg_id": args.id,
         "title": metadata["title"],
         "author": metadata["author"],
-        "language": metadata["language"],
+        "language": chosen_language,
         "level": args.level,
         "source_url": metadata["source_url"]
     }
 
     insert_book_and_chunks(book_info, chunks, dry_run=args.dry_run)
+
 
 if __name__ == "__main__":
     main()

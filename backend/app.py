@@ -13,8 +13,11 @@ from backend.utils.openai_helpers import get_explanation
 from backend.config import PAGEPAL_API_KEY
 from backend.utils.logging_config import setup_logger
 from backend.utils.auth_utils import verify_api_key
+from backend.db.db import managed_connection
 
 from backend.routers import books, chunks
+
+from sqlalchemy import text
 
 app = FastAPI(
     title="LLM Reading Tutor API",
@@ -52,6 +55,25 @@ app.add_middleware(
 
 app.include_router(books.router)
 app.include_router(chunks.router)
+
+# health endpoint 
+@app.get("/health/strict", summary="Strict health check", tags=["Utility"])
+async def health_strict():
+    try:
+        with managed_connection() as db:
+            db.execute(text("SELECT 1"))
+            try:
+                row = db.execute(text("SELECT version_num FROM alembic_version")).fetchone()
+                alembic_version = row[0] if row else None
+            except Exception:
+                alembic_version = None
+        return {"status": "ok", "db": "connected", "alembic_version": alembic_version}
+    except Exception as e:
+        logger.error(f"/health/strict DB check failed: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "degraded", "db": "unavailable"},
+        )
 
 # testing purposes
 @app.get("/secure", 

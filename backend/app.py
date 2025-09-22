@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import status
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -14,8 +15,8 @@ from backend.config import PAGEPAL_API_KEY
 from backend.utils.logging_config import setup_logger
 from backend.utils.auth_utils import verify_api_key
 from backend.db.db import managed_connection
-
 from backend.routers import books, chunks
+from backend.config import CORS_ORIGINS
 
 from sqlalchemy import text
 
@@ -44,10 +45,9 @@ app.add_exception_handler(429, _rate_limit_exceeded_handler) # set a limiter
 
 logger = setup_logger(__name__)
 
-origins = ["http://localhost:3000", "https://pagepal.ai", "http://localhost:5173"] # allows for only my frontend to hit the backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,6 +55,10 @@ app.add_middleware(
 
 app.include_router(books.router)
 app.include_router(chunks.router)
+
+@app.get("/health", summary="Liveness probe", tags=["Utility"])
+async def health():
+    return {"status": "ok"}
 
 # health endpoint 
 @app.get("/health/strict", summary="Strict health check", tags=["Utility"])

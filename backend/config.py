@@ -19,3 +19,7 @@ OPENAI_EMBEDDINGS = os.getenv("OPENAI_EMBEDDINGS", "text-embedding-3-small")
 
 #pagepal
 PAGEPAL_API_KEY = os.getenv("PAGEPAL_API_KEY")
+
+#cors
+_raw = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+CORS_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
